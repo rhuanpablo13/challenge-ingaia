@@ -1,5 +1,6 @@
 const faker = require('faker');
 const puppeteer = require('puppeteer');
+const { createArrowFunction } = require('typescript');
 let browser;
 let page;
 const domain = "http://localhost:3000/en-US";
@@ -19,7 +20,7 @@ async function init() {
 
 async function submitForm() {
   await page.waitForSelector('#form-search');
-  await page.type("input[role=input]", "morty");
+  await page.type("input[role=input]", "rick");
   await Promise.all([
     page.waitForNavigation(),
     page.$eval(
@@ -29,7 +30,7 @@ async function submitForm() {
       },
     ),
     // verificar se a div card-container foi carregada
-    expect(await page.waitForSelector('')).not.toBeNull(),
+    expect(await page.waitForSelector('#card-container')).not.toBeNull(),
   ])
 
 }
@@ -40,26 +41,30 @@ async function loadCards() {
 }
 
 async function modalElements() {
-    await Promise.all([
-      page.waitForNavigation(),
-      page.click('#card-1'),
-      // expect(await page.$('[role="modal"]')).not.toBeNull(),
-    ]);
 
-//   await page.waitForSelector('#details-container')
-//   .then(() => {
-//     const about = page.$("#about").innerText;
-//     expect(about).toEqual('About');
-//   });
+  await page.waitForSelector('#card-1');
+  const element = await page.$('[id="card-1"]');
+  await element.click();
 
-    console.log('2')
+  await page.waitForSelector('[role="modal"]');
+  const modal = await page.$('[role="modal"]');
+  expect(modal).not.toBeNull();
 
+  await page.waitForSelector('[role="title_about"]');
+  const about = await modal.$('[role="title_about"]');
+  let value = await page.evaluate(el => el.textContent, about)
+  expect(value).toEqual('About');
 
-  // const origin = await card.getElementById("origin", node => node.innerText);
-  // expect(origin).toEqual('ORIGIN');
+  await page.waitForSelector('[role="title_origin"]');
+  const origin = await modal.$('[role="title_origin"]');
+  value = await page.evaluate(el => el.textContent, origin)
+  expect(value).toEqual('ORIGIN');
   
-  // const locale = await card.getElementById("locale", node => node.innerText);
-  // expect(locale).toEqual('LOCALE');
+  await page.waitForSelector('[role="title_origin"]');
+  const locale = await modal.$('[role="title_location"]');
+  value = await page.evaluate(el => el.textContent, locale)
+  expect(value).toEqual('LOCALE');
+
 }
 
 describe('Search Form', () => {
@@ -76,15 +81,15 @@ describe('Search Form', () => {
 
   it('submit search form', async () => {
     await submitForm();
-  }, 999999);
+  }, 9999);
       
   it("result should be more 0", async () => {
-    //await loadCards();
-  }, 999999);
+    await loadCards();
+  }, 9999);
 
   it("modal elements", async () => {
     await modalElements();
-  }, 999999);
+  }, 9999);
 
-}, 9999999);
+}, 99999);
     
