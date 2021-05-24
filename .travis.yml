@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - 14.16.1
+cache:
+  directories:
+    - node_modules
+script:
+  - yarn
+  - yarn lint
+  - yarn build
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $github_token
+  local_dir: out
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^(master|main)$
